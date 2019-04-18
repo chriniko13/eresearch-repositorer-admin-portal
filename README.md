@@ -25,11 +25,11 @@ It exposes the following information
 
 ### Screenshots
 
-![1](screenshots/1.pdf)
-![2](screenshots/2.pdf)
-![3](screenshots/3.pdf)
-![4](screenshots/4.pdf)
-![5](screenshots/5.pdf)
-![6](screenshots/6.pdf)
-![7](screenshots/7.pdf)
+![1](screenshots/1-1.jpg)
+![2](screenshots/2-1.jpg)
+![3](screenshots/3-1.jpg)
+![4](screenshots/4-1.jpg)
+![5](screenshots/5-1.jpg)
+![6](screenshots/6-1.jpg)
+![7](screenshots/7-1.jpg)
 
