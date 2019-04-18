@@ -25,11 +25,31 @@ It exposes the following information
 
 ### Screenshots
 
+1.
 ![1](screenshots/1-1.jpg)
+<br/>
+
+2.
 ![2](screenshots/2-1.jpg)
+<br/>
+
+3.
 ![3](screenshots/3-1.jpg)
+<br/>
+
+4.
 ![4](screenshots/4-1.jpg)
+<br/>
+
+5.
 ![5](screenshots/5-1.jpg)
+<br/>
+
+6.
 ![6](screenshots/6-1.jpg)
+<br/>
+
+7.
 ![7](screenshots/7-1.jpg)
+<br/>
 
