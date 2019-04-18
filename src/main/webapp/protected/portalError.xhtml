@@ -1,0 +1,38 @@
+<ui:composition template="/WEB-INF/template.xhtml"
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <ui:define name="title">
+        Eresearch Admin Portal - Portal Error Page
+    </ui:define>
+
+    <ui:define name="content">
+
+
+        <p:fieldset legend="Ooops an error occurred">
+
+            <p:panelGrid columns="2">
+
+                <p:outputLabel value="Exception"/>
+                <p:inputText value="Message:#{pfExceptionHandler.exception}" disabled="true" size="75"/>
+
+                <p:outputLabel value="Type"/>
+                <p:inputText value="Message:#{pfExceptionHandler.type}" disabled="true" size="75"/>
+
+                <p:outputLabel value="Message"/>
+                <p:inputText value="Message:#{pfExceptionHandler.message}" disabled="true" size="75"/>
+
+                <p:outputLabel value="Timestamp"/>
+                <p:inputText value="Message:#{pfExceptionHandler.formattedTimestamp}" disabled="true" size="75"/>
+
+                <p:outputLabel value="Stacktrace"/>
+                <p:editor value="#{pfExceptionHandler.formattedStackTrace}" width="600" disabled="true"/>
+
+            </p:panelGrid>
+
+        </p:fieldset>
+
+    </ui:define>
+
+</ui:composition>

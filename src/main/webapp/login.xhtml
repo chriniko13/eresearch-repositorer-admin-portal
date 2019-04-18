@@ -1,0 +1,40 @@
+<ui:composition template="/WEB-INF/template.xhtml"
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <f:metadata>
+        <f:event type="preRenderView" listener="#{authenticationManager.displayLoginFailedMessage()}"/>
+    </f:metadata>
+
+    <ui:define name="title">
+        Eresearch Admin Portal - Login Page
+    </ui:define>
+
+    <ui:define name="content">
+
+        <h:form id="loginForm" prependId="false">
+
+            <p:fieldset legend="Login Please">
+
+                <p:panelGrid columns="2">
+
+                    <p:outputLabel value="Username" for="j_username"/>
+                    <p:inputText id="j_username" required="true"/>
+
+                    <p:outputLabel value="Password" for="j_password"/>
+                    <p:password id="j_password" required="true"/>
+
+                    <p:spacer/>
+                    <h:commandButton type="submit" id="login" action="#{authenticationManager.doLogin()}" value="Login"/>
+                </p:panelGrid>
+
+            </p:fieldset>
+
+        </h:form>
+
+    </ui:define>
+
+</ui:composition>

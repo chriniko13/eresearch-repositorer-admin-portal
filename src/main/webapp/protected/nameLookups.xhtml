@@ -1,0 +1,217 @@
+<ui:composition template="/WEB-INF/template.xhtml"
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <f:metadata>
+        <f:event type="preRenderView" listener="#{nameLookupsView.init()}"/>
+    </f:metadata>
+
+    <ui:define name="title">
+        Eresearch Admin Portal - Name Lookups
+    </ui:define>
+
+    <ui:define name="content">
+        <h:form id="form">
+
+            <p:poll interval="3" listener="#{nameLookupsView.refresh(false)}" update=":form:nameLookupsTable"
+                    rendered="#{viewConfigurator.tablePollersEnabled}"/>
+
+            <p:growl id="messages" autoUpdate="true" sticky="true" showDetail="true" showSummary="true"/>
+
+            <p:fieldset legend="Stored Name Lookups">
+                <p:outputPanel deferred="true">
+
+                    <p:dataTable var="record"
+                                 value="#{nameLookupsView.nameLookups}"
+                                 paginator="true"
+                                 rows="10"
+                                 paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink} {Exporters}"
+                                 rowsPerPageTemplate="5,10,15"
+                                 selectionMode="single"
+                                 selection="#{nameLookupsView.selectedNameLookup}"
+                                 id="nameLookupsTable"
+                                 lazy="true"
+                                 resizableColumns="true"
+                                 sortMode="multiple"
+                                 draggableColumns="true">
+
+                        <f:facet name="{Exporters}">
+                            <h:commandLink>
+                                <p:graphicImage value="/resources/images/excel.png" width="24"/>
+                                <p:dataExporter type="xls" target="nameLookupsTable"
+                                                fileName="nameLookups"/>
+                            </h:commandLink>
+
+                            <h:commandLink>
+                                <p:graphicImage value="/resources/images/pdf.png" width="24"/>
+                                <p:dataExporter type="pdf" target="nameLookupsTable"
+                                                fileName="nameLookups"/>
+                            </h:commandLink>
+
+                            <h:commandLink>
+                                <p:graphicImage value="/resources/images/csv.png" width="24"/>
+                                <p:dataExporter type="csv" target="nameLookupsTable"
+                                                fileName="nameLookups"/>
+                            </h:commandLink>
+
+                            <h:commandLink>
+                                <p:graphicImage value="/resources/images/xml.png" width="24"/>
+                                <p:dataExporter type="xml" target="nameLookupsTable"
+                                                fileName="nameLookups"/>
+                            </h:commandLink>
+                        </f:facet>
+
+                        <f:facet name="header">
+                            List of Name Lookups
+
+                            <p:commandButton id="toggler" type="button" value="Columns" style="float:right"
+                                             icon="ui-icon-calculator"/>
+                            <p:columnToggler datasource="nameLookupsTable" trigger="toggler"/>
+                        </f:facet>
+
+                        <p:column headerText="Id" sortBy="#{record.id}" filterBy="#{record.id}">
+                            <h:outputText value="#{record.id}"/>
+                        </p:column>
+
+                        <p:column headerText="Tx Id" sortBy="#{record.transactionId}" filterBy="#{record.transactionId}">
+                            <h:outputText value="#{record.transactionId}"/>
+                        </p:column>
+
+                        <p:column headerText="Created At" sortBy="#{record.createdAt}" filterBy="#{record.createdAt}">
+                            <h:outputText value="#{record.createdAt}"/>
+                        </p:column>
+
+                        <p:column headerText="Firstname" sortBy="#{record.firstname}" filterBy="#{record.firstname}">
+                            <h:outputText value="#{record.firstname}"/>
+                        </p:column>
+
+                        <p:column headerText="Initials" sortBy="#{record.initials}" filterBy="#{record.initials}">
+                            <h:outputText value="#{record.initials}"/>
+                        </p:column>
+
+                        <p:column headerText="Surname" sortBy="#{record.surname}" filterBy="#{record.surname}">
+                            <h:outputText value="#{record.surname}"/>
+                        </p:column>
+
+                        <p:column headerText="Status" sortBy="#{record.nameLookupStatus}" filterBy="#{record.nameLookupStatus}">
+                            <h:outputText value="#{record.nameLookupStatus}"/>
+                        </p:column>
+
+                        <!-- display nameVariants in a dialog -->
+
+                        <f:facet name="footer">
+                            <p:commandButton process="nameLookupsTable"
+                                             update=":form:nameLookupDetail"
+                                             icon="ui-icon-search"
+                                             value="View" oncomplete="PF('nameLookupDialog').show()"/>
+
+                            <p:commandButton process="nameLookupsTable"
+                                             update="nameLookupsTable"
+                                             actionListener="#{nameLookupsView.delete()}"
+                                             icon="ui-icon-trash"
+                                             value="Delete">
+                                <p:confirm header="Confirmation" message="Are you sure?" icon="ui-icon-alert"/>
+                            </p:commandButton>
+
+                            <p:commandButton process="nameLookupsTable"
+                                             update="nameLookupsTable"
+                                             actionListener="#{nameLookupsView.deleteAll()}"
+                                             icon="ui-icon-trash"
+                                             value="Delete All">
+                                <p:confirm header="Confirmation" message="Are you sure?" icon="ui-icon-alert"/>
+                            </p:commandButton>
+
+                            <p:commandButton process="nameLookupsTable"
+                                             update="nameLookupsTable"
+                                             actionListener="#{nameLookupsView.refresh(true)}"
+                                             icon="ui-icon-refresh"
+                                             value="Refresh"/>
+
+                            <p:spacer width="25"/>
+                            In total there are #{nameLookupsView.nameLookups.datasource.size()} name-lookup(s).
+                        </f:facet>
+                    </p:dataTable>
+
+
+                    <p:dialog header="Name Lookup Info" widgetVar="nameLookupDialog"
+                              width="600"
+                              height="400"
+                              modal="false"
+                              showEffect="explode"
+                              hideEffect="bounce"
+                              minimizable="true"
+                              maximizable="true"
+                              resizable="true">
+                        <p:outputPanel id="nameLookupDetail" style="text-align:center;">
+                            <p:panelGrid columns="2" rendered="#{not empty nameLookupsView.selectedNameLookup}"
+                                         columnClasses="label,value">
+
+                                <p:outputLabel value="Id"/>
+                                <p:inputText value="#{nameLookupsView.selectedNameLookup.id}" disabled="true"
+                                             size="75"/>
+
+                                <p:outputLabel value="Tx Id"/>
+                                <p:inputText value="#{nameLookupsView.selectedNameLookup.transactionId}" disabled="true"
+                                             size="75"/>
+
+                                <p:outputLabel value="Created At"/>
+                                <p:inputText value="#{nameLookupsView.selectedNameLookup.createdAt}" disabled="true"
+                                             size="75"/>
+
+                                <p:outputLabel value="Firstname"/>
+                                <p:inputText value="#{nameLookupsView.selectedNameLookup.firstname}"
+                                             disabled="true" size="75"/>
+
+                                <p:outputLabel value="Initials"/>
+                                <p:inputText value="#{nameLookupsView.selectedNameLookup.initials}"
+                                             disabled="true" size="75"/>
+
+                                <p:outputLabel value="Surname"/>
+                                <p:inputText value="#{nameLookupsView.selectedNameLookup.surname}"
+                                             disabled="true" size="75"/>
+
+                                <p:outputLabel value="Status"/>
+                                <p:inputText value="#{nameLookupsView.selectedNameLookup.nameLookupStatus}"
+                                             disabled="true" size="75"/>
+
+                                <h:outputLabel value="Name Variants"/>
+                                <p:dataTable var="nameVariant"
+                                             value="#{nameLookupsView.selectedNameLookup.nameVariants}"
+                                             rows="10"
+                                             paginator="true"
+                                             paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                             rowsPerPageTemplate="5,10,15">
+                                    <p:column headerText="Firstname">
+                                        <h:outputText value="#{nameVariant.firstname}"/>
+                                    </p:column>
+
+                                    <p:column headerText="Initials">
+                                        <h:outputText value="#{nameVariant.initials}"/>
+                                    </p:column>
+
+                                    <p:column headerText="Surname">
+                                        <h:outputText value="#{nameVariant.surname}"/>
+                                    </p:column>
+                                </p:dataTable>
+
+                            </p:panelGrid>
+                        </p:outputPanel>
+                    </p:dialog>
+
+                    <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                        <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes"
+                                         icon="ui-icon-check"/>
+                        <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no"
+                                         icon="ui-icon-close"/>
+                    </p:confirmDialog>
+
+                </p:outputPanel>
+            </p:fieldset>
+
+        </h:form>
+    </ui:define>
+
+</ui:composition>

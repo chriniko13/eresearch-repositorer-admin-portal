@@ -1,0 +1,100 @@
+<ui:composition template="/WEB-INF/template.xhtml"
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <f:metadata>
+        <f:event type="preRenderView" listener="#{extractView.init()}"/>
+    </f:metadata>
+
+    <ui:define name="title">
+        Eresearch Admin Portal - Extract Operation
+    </ui:define>
+
+    <ui:define name="content">
+        <h:form id="form">
+
+            <p:growl id="messages" autoUpdate="true" sticky="true" showDetail="true" showSummary="true"/>
+
+            <p:fieldset legend="Extract Operation">
+
+                <p:panel header="Create a new extraction record" style="margin-bottom:20px">
+                    <h:panelGrid columns="2" cellpadding="5">
+
+                        <p:outputLabel value="Firstname :" for="txt_firstname"/>
+                        <p:inputText id="txt_firstname" value="#{extractView.author.firstname}" required="true"/>
+
+                        <p:outputLabel value="Initials :" for="txt_initials"/>
+                        <p:inputText id="txt_initials" value="#{extractView.author.initials}" required="false"/>
+
+                        <p:outputLabel value="Surname :" for="txt_surname"/>
+                        <p:inputText id="txt_surname" value="#{extractView.author.surname}" required="true"/>
+
+                        <p:commandButton id="btn_reset" value="Reset" type="reset"/>
+                        <p:commandButton id="btn_add" value="Add" update="authors @parent"
+                                         action="#{extractView.reinit()}">
+                            <p:collector value="#{extractView.author}" addTo="#{extractView.authors}" unique="true"/>
+                        </p:commandButton>
+                    </h:panelGrid>
+                </p:panel>
+
+                <p:outputPanel id="authors">
+                    <p:dataTable value="#{extractView.authors}" var="auth" id="authorsTable"
+                                 paginator="true"
+                                 rows="10"
+                                 paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+                                 rowsPerPageTemplate="5,10,15">
+
+                        <f:facet name="header">
+                            List of Authors to Perform Extraction
+                        </f:facet>
+
+                        <p:column headerText="Firstname">
+                            <h:outputText value="#{auth.firstname}"/>
+                        </p:column>
+
+                        <p:column headerText="Initials">
+                            <h:outputText value="#{auth.initials}"/>
+                        </p:column>
+
+                        <p:column headerText="Surname">
+                            <h:outputText value="#{auth.surname}"/>
+                        </p:column>
+
+                        <p:column headerText="Action">
+                            <p:commandLink value="Remove" update=":form:authors" process=":form:authors">
+                                <p:collector value="#{auth}" removeFrom="#{extractView.authors}" unique="true"/>
+                            </p:commandLink>
+                        </p:column>
+
+                        <f:facet name="footer">
+                            <p:commandButton process="authorsTable"
+                                             update="authorsTable"
+                                             actionListener="#{extractView.performExtraction()}"
+                                             icon="ui-icon-circle-arrow-s"
+                                             value="Extract">
+                                <p:confirm header="Confirmation" message="Are you sure?" icon="ui-icon-alert"/>
+                            </p:commandButton>
+
+                            <p:spacer width="25"/>
+
+                            In total there are #{extractView.authors.size()} author(s).
+                        </f:facet>
+                    </p:dataTable>
+
+
+                    <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                        <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes"
+                                         icon="ui-icon-check"/>
+                        <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no"
+                                         icon="ui-icon-close"/>
+                    </p:confirmDialog>
+
+                </p:outputPanel>
+            </p:fieldset>
+        </h:form>
+    </ui:define>
+
+</ui:composition>

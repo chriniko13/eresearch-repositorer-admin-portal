@@ -1,0 +1,387 @@
+<ui:composition template="/WEB-INF/template.xhtml"
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <f:metadata>
+        <f:event type="preRenderView" listener="#{recordsView.init()}"/>
+    </f:metadata>
+
+    <ui:define name="title">
+        Eresearch Admin Portal - Name Lookups
+    </ui:define>
+
+    <ui:define name="content">
+        <h:form id="form">
+
+            <p:poll interval="3" listener="#{recordsView.refresh(false)}" update=":form:recordsTable"
+                    rendered="#{viewConfigurator.tablePollersEnabled}"/>
+
+            <p:growl id="messages" autoUpdate="true" sticky="true" showDetail="true" showSummary="true"/>
+
+            <p:fieldset legend="Stored Records">
+                <p:outputPanel deferred="true">
+
+                    <p:dataTable var="flatRecordInfo"
+                                 value="#{recordsView.flatRecordInfos}"
+                                 paginator="true"
+                                 rows="10"
+                                 paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink} {Exporters}"
+                                 rowsPerPageTemplate="5,10,15"
+                                 selectionMode="single"
+                                 selection="#{recordsView.selectedFlatRecordInfo}"
+                                 id="recordsTable"
+                                 lazy="true"
+                                 resizableColumns="true"
+                                 sortMode="multiple"
+                                 draggableColumns="true">
+
+                        <f:facet name="{Exporters}">
+                            <h:commandLink>
+                                <p:graphicImage value="/resources/images/excel.png" width="24"/>
+                                <p:dataExporter type="xls" target="recordsTable"
+                                                fileName="records"/>
+                            </h:commandLink>
+
+                            <h:commandLink>
+                                <p:graphicImage value="/resources/images/pdf.png" width="24"/>
+                                <p:dataExporter type="pdf" target="recordsTable"
+                                                fileName="records"/>
+                            </h:commandLink>
+
+                            <h:commandLink>
+                                <p:graphicImage value="/resources/images/csv.png" width="24"/>
+                                <p:dataExporter type="csv" target="recordsTable"
+                                                fileName="records"/>
+                            </h:commandLink>
+
+                            <h:commandLink>
+                                <p:graphicImage value="/resources/images/xml.png" width="24"/>
+                                <p:dataExporter type="xml" target="recordsTable"
+                                                fileName="records"/>
+                            </h:commandLink>
+                        </f:facet>
+
+                        <f:facet name="header">
+                            List of Records
+
+                            <p:commandButton id="toggler" type="button" value="Columns" style="float:right"
+                                             icon="ui-icon-calculator"/>
+                            <p:columnToggler datasource="recordsTable" trigger="toggler"/>
+                        </f:facet>
+
+                        <p:column headerText="Firstname" sortBy="#{flatRecordInfo.firstname}" filterBy="#{flatRecordInfo.firstname}">
+                            <h:outputText value="#{flatRecordInfo.firstname}"/>
+                        </p:column>
+
+                        <p:column headerText="Initials" sortBy="#{flatRecordInfo.initials}" filterBy="#{flatRecordInfo.initials}">
+                            <h:outputText value="#{flatRecordInfo.initials}"/>
+                        </p:column>
+
+                        <p:column headerText="Surname" sortBy="#{flatRecordInfo.surname}" filterBy="#{flatRecordInfo.surname}">
+                            <h:outputText value="#{flatRecordInfo.surname}"/>
+                        </p:column>
+
+                        <p:column headerText="Creation Date" sortBy="#{flatRecordInfo.creationDate}" filterBy="#{flatRecordInfo.creationDate}">
+                            <h:outputText value="#{flatRecordInfo.creationDate}"/>
+                        </p:column>
+
+                        <!-- display record all info in a dialog -->
+
+                        <f:facet name="footer">
+                            <p:commandButton process="recordsTable"
+                                             update=":form:recordDetail :form:entryDetail"
+                                             icon="ui-icon-search"
+                                             actionListener="#{recordsView.fullLoadSelectedFlatRecord()}"
+                                             value="Load"/>
+
+                            <p:commandButton process="recordsTable"
+                                             update="recordsTable"
+                                             actionListener="#{recordsView.delete()}"
+                                             icon="ui-icon-trash"
+                                             value="Delete">
+                                <p:confirm header="Confirmation" message="Are you sure?" icon="ui-icon-alert"/>
+                            </p:commandButton>
+
+                            <p:commandButton process="recordsTable"
+                                             update="recordsTable"
+                                             actionListener="#{recordsView.deleteAll()}"
+                                             icon="ui-icon-trash"
+                                             value="Delete All">
+                                <p:confirm header="Confirmation" message="Are you sure?" icon="ui-icon-alert"/>
+                            </p:commandButton>
+
+                            <p:commandButton process="recordsTable"
+                                             update="recordsTable"
+                                             actionListener="#{recordsView.refresh(true)}"
+                                             icon="ui-icon-refresh"
+                                             value="Refresh"/>
+
+                            <p:spacer width="25"/>
+                            In total there are #{recordsView.flatRecordInfos.datasource.size()} record(s).
+                        </f:facet>
+                    </p:dataTable>
+
+                    <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                        <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes"
+                                         icon="ui-icon-check"/>
+                        <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no"
+                                         icon="ui-icon-close"/>
+                    </p:confirmDialog>
+                </p:outputPanel>
+            </p:fieldset>
+
+            <p:spacer height="5"/>
+            <p:separator/>
+            <p:spacer height="5"/>
+
+            <p:fieldset legend="Loaded Record Section">
+                <p:outputPanel id="recordDetail" style="text-align:center;" deferred="true">
+                    <p:panelGrid columns="2" rendered="#{not empty recordsView.selectedFlatRecordInfo}"
+                                 columnClasses="label,value">
+
+                        <p:outputLabel value="Id"/>
+                        <p:inputText value="#{recordsView.selectedRecord.id}" disabled="true" size="75"/>
+
+                        <p:outputLabel value="Tx Id"/>
+                        <p:inputText value="#{recordsView.selectedRecord.transactionId}" disabled="true"
+                                     size="75"/>
+
+                        <p:outputLabel value="Firstname"/>
+                        <p:inputText value="#{recordsView.selectedRecord.firstname}"
+                                     disabled="true" size="75"/>
+
+                        <p:outputLabel value="Initials"/>
+                        <p:inputText value="#{recordsView.selectedRecord.initials}"
+                                     disabled="true" size="75"/>
+
+                        <p:outputLabel value="Surname"/>
+                        <p:inputText value="#{recordsView.selectedRecord.lastname}"
+                                     disabled="true" size="75"/>
+
+                        <p:outputLabel value="Created At"/>
+                        <p:inputText value="#{recordsView.selectedRecord.createdAt}" disabled="true"
+                                     size="75"/>
+
+                        <h:outputLabel value="Name Variants"/>
+                        <p:dataTable var="nameVariant" value="#{recordsView.selectedRecord.nameVariants}"
+                                     rows="10"
+                                     paginator="true"
+                                     paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown} {Exporters}"
+                                     rowsPerPageTemplate="5,10,15"
+                                     resizableColumns="true"
+                                     id="nameVariantsTable"
+                                     sortMode="multiple"
+                                     draggableColumns="true">
+
+                            <f:facet name="{Exporters}">
+                                <h:commandLink>
+                                    <p:graphicImage value="/resources/images/excel.png" width="24"/>
+                                    <p:dataExporter type="xls" target="nameVariantsTable"
+                                                    fileName="nameVariants"/>
+                                </h:commandLink>
+
+                                <h:commandLink>
+                                    <p:graphicImage value="/resources/images/pdf.png" width="24"/>
+                                    <p:dataExporter type="pdf" target="nameVariantsTable"
+                                                    fileName="nameVariants"/>
+                                </h:commandLink>
+
+                                <h:commandLink>
+                                    <p:graphicImage value="/resources/images/csv.png" width="24"/>
+                                    <p:dataExporter type="csv" target="nameVariantsTable"
+                                                    fileName="nameVariants"/>
+                                </h:commandLink>
+
+                                <h:commandLink>
+                                    <p:graphicImage value="/resources/images/xml.png" width="24"/>
+                                    <p:dataExporter type="xml" target="nameVariantsTable"
+                                                    fileName="nameVariants"/>
+                                </h:commandLink>
+                            </f:facet>
+
+                            <f:facet name="header">
+                                List of Author Name Variants
+
+                                <p:commandButton id="toggler2" type="button" value="Columns" style="float:right"
+                                                 icon="ui-icon-calculator"/>
+                                <p:columnToggler datasource="nameVariantsTable" trigger="toggler2"/>
+                            </f:facet>
+
+                            <p:column headerText="Firstname" sortBy="#{nameVariant.firstname}" filterBy="#{nameVariant.firstname}" filterMatchMode="contains">
+                                <h:outputText value="#{nameVariant.firstname}"/>
+                            </p:column>
+
+                            <p:column headerText="Initials" sortBy="#{nameVariant.initials}" filterBy="#{nameVariant.initials}" filterMatchMode="contains">
+                                <h:outputText value="#{nameVariant.initials}"/>
+                            </p:column>
+
+                            <p:column headerText="Surname" sortBy="#{nameVariant.surname}" filterBy="#{nameVariant.surname}" filterMatchMode="contains">
+                                <h:outputText value="#{nameVariant.surname}"/>
+                            </p:column>
+
+                            <f:facet name="footer">
+                                In total there are #{recordsView.selectedRecord.nameVariants.size()} name-variant(s).
+                            </f:facet>
+                        </p:dataTable>
+
+                        <h:outputLabel value="Entries"/>
+                        <p:dataTable var="entry" value="#{recordsView.selectedRecord.entries}"
+                                     rows="10"
+                                     paginator="true"
+                                     paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown} {Exporters}"
+                                     rowsPerPageTemplate="5,10,15"
+                                     selectionMode="single"
+                                     rowKey="#{entry}"
+                                     selection="#{recordsView.selectedEntry}"
+                                     resizableColumns="true"
+                                     id="entriesTable"
+                                     sortMode="multiple"
+                                     draggableColumns="true">
+
+                            <f:facet name="{Exporters}">
+                                <h:commandLink>
+                                    <p:graphicImage value="/resources/images/excel.png" width="24"/>
+                                    <p:dataExporter type="xls" target="entriesTable"
+                                                    fileName="entries"/>
+                                </h:commandLink>
+
+                                <h:commandLink>
+                                    <p:graphicImage value="/resources/images/pdf.png" width="24"/>
+                                    <p:dataExporter type="pdf" target="entriesTable"
+                                                    fileName="entries"/>
+                                </h:commandLink>
+
+                                <h:commandLink>
+                                    <p:graphicImage value="/resources/images/csv.png" width="24"/>
+                                    <p:dataExporter type="csv" target="entriesTable"
+                                                    fileName="entries"/>
+                                </h:commandLink>
+
+                                <h:commandLink>
+                                    <p:graphicImage value="/resources/images/xml.png" width="24"/>
+                                    <p:dataExporter type="xml" target="entriesTable"
+                                                    fileName="entries"/>
+                                </h:commandLink>
+                            </f:facet>
+
+                            <f:facet name="header">
+                                List of Entries
+
+                                <p:commandButton id="toggler3" type="button" value="Columns" style="float:right"
+                                                 icon="ui-icon-calculator"/>
+                                <p:columnToggler datasource="entriesTable" trigger="toggler3"/>
+                            </f:facet>
+
+                            <p:column headerText="Title" sortBy="#{entry.title}" filterBy="#{entry.title}" filterMatchMode="contains">
+                                <h:outputText value="#{entry.title}" escape="#{viewConfigurator.entryTitleEscapeHtml}"/>
+                            </p:column>
+
+                            <f:facet name="footer">
+                                <p:commandButton process=":form:recordDetail"
+                                                 update=":form:entryDetail"
+                                                 icon="ui-icon-search"
+                                                 actionListener="#{recordsView.fullLoadSelectedEntry()}"
+                                                 value="Load"/>
+
+                                <p:spacer width="25"/>
+                                In total there are #{recordsView.selectedRecord.entries.size()} entry/entries.
+                            </f:facet>
+                        </p:dataTable>
+
+                    </p:panelGrid>
+                </p:outputPanel>
+            </p:fieldset>
+
+            <p:spacer height="5"/>
+            <p:separator/>
+            <p:spacer height="5"/>
+
+            <p:fieldset legend="Loaded Entry Section">
+                <p:outputPanel id="entryDetail" style="text-align:center;" deferred="true">
+                    <p:panelGrid columns="2" rendered="#{not empty recordsView.selectedEntry}"
+                                 columnClasses="label,value">
+
+                        <p:outputLabel value="Title"/>
+                        <p:inputText value="#{recordsView.selectedEntry.title}" disabled="true" size="75"/>
+
+                        <p:outputLabel value="Authors"/>
+                        <p:dataTable var="author" value="#{recordsView.selectedEntry.sortableAuthors}"
+                                     rows="10"
+                                     paginator="true"
+                                     paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown} {Exporters}"
+                                     rowsPerPageTemplate="5,10,15"
+                                     resizableColumns="true"
+                                     id="authorsTable"
+                                     sortMode="multiple"
+                                     draggableColumns="true">
+
+                            <f:facet name="{Exporters}">
+                                <h:commandLink>
+                                    <p:graphicImage value="/resources/images/excel.png" width="24"/>
+                                    <p:dataExporter type="xls" target="authorsTable"
+                                                    fileName="authors"/>
+                                </h:commandLink>
+
+                                <h:commandLink>
+                                    <p:graphicImage value="/resources/images/pdf.png" width="24"/>
+                                    <p:dataExporter type="pdf" target="authorsTable"
+                                                    fileName="authors"/>
+                                </h:commandLink>
+
+                                <h:commandLink>
+                                    <p:graphicImage value="/resources/images/csv.png" width="24"/>
+                                    <p:dataExporter type="csv" target="authorsTable"
+                                                    fileName="authors"/>
+                                </h:commandLink>
+
+                                <h:commandLink>
+                                    <p:graphicImage value="/resources/images/xml.png" width="24"/>
+                                    <p:dataExporter type="xml" target="authorsTable"
+                                                    fileName="authors"/>
+                                </h:commandLink>
+                            </f:facet>
+
+                            <f:facet name="header">
+                                List of Authors
+
+                                <p:commandButton id="toggler4" type="button" value="Columns" style="float:right"
+                                                 icon="ui-icon-calculator"/>
+                                <p:columnToggler datasource="authorsTable" trigger="toggler4"/>
+                            </f:facet>
+
+                            <p:column headerText="Firstname" sortBy="#{author.firstname}" filterBy="#{author.firstname}" filterMatchMode="contains">
+                                <h:outputText value="#{author.firstname}"/>
+                            </p:column>
+
+                            <p:column headerText="Initials" sortBy="#{author.initials}" filterBy="#{author.initials}" filterMatchMode="contains">
+                                <h:outputText value="#{author.initials}"/>
+                            </p:column>
+
+                            <p:column headerText="Surname" sortBy="#{author.surname}" filterBy="#{author.surname}" filterMatchMode="contains">
+                                <h:outputText value="#{author.surname}"/>
+                            </p:column>
+
+                            <f:facet name="footer">
+                                In total there are #{recordsView.selectedEntry.authors.size()} author(s).
+                            </f:facet>
+                        </p:dataTable>
+
+                        <p:outputLabel value="Metadata"/>
+                        <p:tabView value="#{recordsView.selectedEntry.metadataList}"
+                                   var="metadataEntry" scrollable="false">
+                            <p:tab title="#{metadataEntry.key}">
+                                <p:editor value="#{metadataEntry.value}" width="600" disabled="true"/>
+                            </p:tab>
+                        </p:tabView>
+
+                    </p:panelGrid>
+                </p:outputPanel>
+            </p:fieldset>
+
+        </h:form>
+    </ui:define>
+
+</ui:composition>

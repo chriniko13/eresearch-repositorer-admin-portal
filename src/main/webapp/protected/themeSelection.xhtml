@@ -1,0 +1,39 @@
+<ui:composition template="/WEB-INF/template.xhtml"
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+    <f:metadata>
+        <f:event type="preRenderView" listener="#{themeSelectionView.init()}"/>
+    </f:metadata>
+
+    <ui:define name="title">
+        Eresearch Admin Portal - Theme Selection
+    </ui:define>
+
+    <ui:define name="content">
+
+        <h:form id="form">
+
+            <p:growl id="messages" autoUpdate="true" sticky="true" showDetail="true" showSummary="true"/>
+
+            <p:fieldset legend="Theme Selection">
+                <p:outputPanel deferred="true">
+
+                    <p:outputLabel for="basic" value="Select a theme:" />
+
+                    <p:themeSwitcher id="basic" style="width:165px" value="#{themeSelectionView.selectedTheme}" converter="themeConverter">
+                        <f:selectItem itemLabel="Choose Theme" itemValue="#{userSelectedThemeContext.selectedTheme}" />
+                        <f:selectItems value="#{themeSelectionView.themes}" />
+                        <p:ajax listener="#{themeSelectionView.saveTheme}"/>
+                    </p:themeSwitcher>
+
+                </p:outputPanel>
+            </p:fieldset>
+
+        </h:form>
+
+    </ui:define>
+
+</ui:composition>
