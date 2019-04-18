@@ -21,3 +21,15 @@ It exposes the following information
 * Login with credentials:
     * Username: `admin`
     * Password: `admin`
+
+
+### Screenshots
+
+![1](screenshots/1.pdf)
+![2](screenshots/2.pdf)
+![3](screenshots/3.pdf)
+![4](screenshots/4.pdf)
+![5](screenshots/5.pdf)
+![6](screenshots/6.pdf)
+![7](screenshots/7.pdf)
+
